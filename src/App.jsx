@@ -18,6 +18,32 @@ function Cursor() {
 }
 
 function App() {
+  const uiEnhancementsScript = `
+    (function(){
+      var cursor = document.getElementById('cursor');
+      var prog = document.getElementById('scroll-progress');
+      window.addEventListener('mousemove', function(e){
+        if (cursor) {
+          cursor.style.transform = 'translate(' + e.clientX + 'px, ' + e.clientY + 'px)';
+        }
+      });
+      function upd(){
+        if (prog) {
+          var sTop = document.documentElement.scrollTop || document.body.scrollTop;
+          var h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+          var p = h > 0 ? (sTop / h) * 100 : 0;
+          prog.style.width = p + '%';
+        }
+        requestAnimationFrame(upd);
+      }
+      requestAnimationFrame(upd);
+      Array.prototype.slice.call(document.querySelectorAll('a, button')).forEach(function(el){
+        el.addEventListener('mouseenter', function(){ if (cursor) { cursor.style.transform += ' scale(1.4)'; } });
+        el.addEventListener('mouseleave', function(){ if (cursor) { cursor.style.transform = cursor.style.transform.replace(' scale(1.4)', ''); } });
+      });
+    })();
+  `;
+
   return (
     <div className="min-h-screen bg-[#0a0b0f] text-white antialiased selection:bg-cyan-500/30 selection:text-white">
       <ScrollProgress />
@@ -34,25 +60,7 @@ function App() {
         © {new Date().getFullYear()} Your Name — Built with React, Tailwind, and Framer Motion
       </footer>
 
-      <script dangerouslySetInnerHTML={{ __html: `
-        const cursor = document.getElementById('cursor');
-        const prog = document.getElementById('scroll-progress');
-        window.addEventListener('mousemove', (e) => {
-          cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-        });
-        const upd = () => {
-          const sTop = document.documentElement.scrollTop || document.body.scrollTop;
-          const h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-          const p = (sTop / h) * 100;
-          prog.style.width = p + '%';
-          requestAnimationFrame(upd);
-        };
-        requestAnimationFrame(upd);
-        document.querySelectorAll('a, button').forEach(el => {
-          el.addEventListener('mouseenter', () => cursor.style.transform += ' scale(1.4)');
-          el.addEventListener('mouseleave', () => cursor.style.transform = cursor.style.transform.replace(' scale(1.4)',''));
-        });
-      `}} />
+      <script dangerouslySetInnerHTML={{ __html: uiEnhancementsScript }} />
     </div>
   );
 }
